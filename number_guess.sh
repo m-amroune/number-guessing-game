@@ -26,3 +26,15 @@ fi
 echo "Guess the secret number between 1 and 1000:"
 read GUESS
 
+# Loop until correct guess
+while [[ $GUESS -ne $SECRET_NUMBER ]]
+do
+  if [[ $GUESS -gt $SECRET_NUMBER ]]
+  then
+    echo "It's lower than that, guess again:"
+  else
+    echo "It's higher than that, guess again:"
+  fi
+  read GUESS
+done
+

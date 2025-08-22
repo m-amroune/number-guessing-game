@@ -26,11 +26,15 @@ fi
 echo "Guess the secret number between 1 and 1000:"
 read GUESS
 
+# Guess counter
+NUMBER_OF_GUESSES=1
+
 # Validate first input
 while [[ ! $GUESS =~ ^[0-9]+$ ]]
 do
   echo "That is not an integer, guess again:"
   read GUESS
+  ((NUMBER_OF_GUESSES++))
 done
 
 # Loop until correct guess
@@ -42,14 +46,18 @@ do
   else
     echo "It's higher than that, guess again:"
   fi
-
   read GUESS
+  ((NUMBER_OF_GUESSES++))
   while [[ ! $GUESS =~ ^[0-9]+$ ]]
   do
     echo "That is not an integer, guess again:"
     read GUESS
+    ((NUMBER_OF_GUESSES++))
   done
 done
+
+# Winning message
+echo "You guessed it in $NUMBER_OF_GUESSES tries. The secret number was $SECRET_NUMBER. Nice job!"
 
 
 

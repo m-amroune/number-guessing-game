@@ -11,13 +11,14 @@ read USERNAME
 PSQL="psql -X --username=freecodecamp --dbname=number_guess -t --no-align -c"
 
 # Check if user exists
-USER_DATA=$($PSQL "SELECT games_played, best_game FROM users WHERE username='$USERNAME';")
+EXISTS=$($PSQL "SELECT 1 FROM users WHERE username='$USERNAME' LIMIT 1;")
 
-if [[ -z $USER_DATA ]]
+if [[ -z $EXISTS ]]
 then
   echo "Welcome, $USERNAME! It looks like this is your first time here."
   $PSQL "INSERT INTO users(username) VALUES('$USERNAME');" > /dev/null
 else
+  USER_DATA=$($PSQL "SELECT games_played, best_game FROM users WHERE username='$USERNAME';")
   IFS="|" read GAMES_PLAYED BEST_GAME <<< "$USER_DATA"
   echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
 fi
@@ -58,6 +59,19 @@ done
 
 # Winning message
 echo "You guessed it in $NUMBER_OF_GUESSES tries. The secret number was $SECRET_NUMBER. Nice job!"
+
+# Update games played and best game in DB
+USER_DATA=$($PSQL "SELECT games_played, best_game FROM users WHERE username='$USERNAME';")
+IFS="|" read GAMES_PLAYED BEST_GAME <<< "$USER_DATA"
+
+NEW_GAMES_PLAYED=$(( GAMES_PLAYED + 1 ))
+
+if [[ -z $BEST_GAME || $NUMBER_OF_GUESSES -lt $BEST_GAME ]]
+then
+  $PSQL "UPDATE users SET games_played=$NEW_GAMES_PLAYED, best_game=$NUMBER_OF_GUESSES WHERE username='$USERNAME';" > /dev/null
+else
+  $PSQL "UPDATE users SET games_played=$NEW_GAMES_PLAYED WHERE username='$USERNAME';" > /dev/null
+fi
 
 
 
